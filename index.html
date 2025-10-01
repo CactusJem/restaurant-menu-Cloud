@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Restoran - Fine Dining Experience</title>
+  <link rel="stylesheet" href="styles/globals.css">
+  <link rel="stylesheet" href="styles/menu.css">
+  <style>
+    /* Collapsible "folder" behavior for categories */
+    .category-card.collapsed .menu-items { display: none; }
+    .category-title { cursor: pointer; display: flex; align-items: center; justify-content: space-between; }
+    .folder-caret { margin-left: 0.5rem; font-size: 1.25rem; line-height: 1; }
+    .category-card.collapsed .folder-caret::before { content: "▸"; }
+    .category-card:not(.collapsed) .folder-caret::before { content: "▾"; }
+  </style>
+</head>
+<body>
+  <header class="menu-header">
+    <div class="container">
+      <h1 class="menu-title">Restoran</h1>
+      <p class="menu-subtitle">Curated culinary experiences crafted with passion</p>
+    </div>
+  </header>
+
+  <main class="menu-container">
+    <div class="container">
+      <div id="menu" class="menu-grid">
+        <div class="loading">Loading our carefully curated menu...</div>
+      </div>
+    </div>
+  </main>
+
+  <script type="module" src="js/frontend/menu.js"></script>
+  <script type="module" src="js/frontend/public-menu.js"></script>
+  <script>
+    (function () {
+      function enhanceCard(card) {
+        if (!card || card.dataset.enhanced === "true") return;
+        card.dataset.enhanced = "true";
+        card.classList.add("collapsed");
+
+        const titleEl = card.querySelector(".category-title");
+        if (!titleEl) return;
+
+        // Make the title interactive and accessible
+        titleEl.setAttribute("tabindex", "0");
+        titleEl.setAttribute("role", "button");
+        titleEl.setAttribute("aria-expanded", "false");
+
+        // Add a caret indicator
+        const caret = document.createElement("span");
+        caret.className = "folder-caret";
+        caret.setAttribute("aria-hidden", "true");
+        titleEl.appendChild(caret);
+
+        const toggle = () => {
+          const isCollapsed = card.classList.contains("collapsed");
+          if (isCollapsed) {
+            document.querySelectorAll(".category-card").forEach((c) => {
+              if (c !== card) {
+                c.classList.add("collapsed");
+                const t = c.querySelector(".category-title");
+                if (t) t.setAttribute("aria-expanded", "false");
+              }
+            });
+            card.classList.remove("collapsed");
+            titleEl.setAttribute("aria-expanded", "true");
+          } else {
+            card.classList.add("collapsed");
+            titleEl.setAttribute("aria-expanded", "false");
+          }
+        };
+
+        titleEl.addEventListener("click", toggle);
+        titleEl.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            toggle();
+          }
+        });
+      }
+
+      function setup() {
+        const container = document.getElementById("menu");
+        if (!container) return;
+        // Enhance any existing cards
+        container.querySelectorAll(".category-card").forEach(enhanceCard);
+
+        // Observe for dynamically added cards from menu.js
+        const observer = new MutationObserver((mutations) => {
+          for (const m of mutations) {
+            m.addedNodes.forEach((node) => {
+              if (node.nodeType !== 1) return;
+              if (node.classList?.contains("category-card")) enhanceCard(node);
+              node.querySelectorAll?.(".category-card").forEach(enhanceCard);
+            });
+          }
+        });
+        observer.observe(container, { childList: true, subtree: true });
+      }
+
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", setup);
+      } else {
+        setup();
+      }
+    })();
+  </script>
+</body>
+</html>

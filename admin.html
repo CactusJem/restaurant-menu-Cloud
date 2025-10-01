@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - Restoran</title>
+  <link rel="stylesheet" href="styles/globals.css">
+  <link rel="stylesheet" href="styles/admin.css">
+</head>
+<body class="admin-container">
+  <header class="admin-header">
+    <div class="container">
+      <h1 class="admin-title">Restoran Admin</h1> 
+    </div>
+  </header>
+
+  <main>
+    <!-- ========== LOGIN SECTION ========== -->
+    <section id="login-box" class="login-section">
+      <div class="login-card">
+        <h2 class="login-title">Administrator Access</h2>
+        <form id="login-form" onsubmit="event.preventDefault(); login();">
+          <div class="form-group">
+            <label class="form-label" for="email">Email Address</label>
+            <input type="email" id="email" class="form-input" placeholder="admin@restoran.com" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="password">Password</label>
+            <input type="password" id="password" class="form-input" placeholder="Enter your password" required>
+          </div>
+          <button type="submit" class="btn-primary">Access Dashboard</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- ========== DASHBOARD SECTION ========== -->
+    <section id="dashboard" class="dashboard-content" style="display: none;">
+      <div class="container">
+        
+        <!-- Category Creation -->
+        <div class="section-card">
+          <h2 class="section-title">Create New Category</h2>
+          <div class="create-category-form">
+            <div class="form-group">
+              <label class="form-label" for="new-cat-name">Category Name</label>
+              <input id="new-cat-name" class="form-input" placeholder="e.g., Appetizers, Main Courses">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="new-cat-prefix">Category Prefix</label>
+              <input id="new-cat-prefix" class="form-input" placeholder="e.g., ap, mc, de">
+            </div>
+            <button class="btn-primary" onclick="createCategory()">Create Category</button>
+          </div>
+        </div>
+
+        <!-- Category List -->
+        <div class="section-card">
+          <h2 class="section-title">Menu Categories</h2>
+          <div id="categories-list">
+            <div class="loading">Loading categories...</div>
+          </div>
+        </div>
+
+        <!-- Menu List -->
+        <div class="section-card">
+          <h2 class="section-title">Menu Items</h2>
+          <div id="menuList">
+            <div class="loading">Loading menu...</div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <!-- JS -->
+  <script type="module" src="js/backend/admin.js"></script>
+</body>
+</html>
