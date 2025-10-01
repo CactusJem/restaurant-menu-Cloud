@@ -1,6 +1,7 @@
 import { auth, db } from "../config/firebase-config.js"
 import { storage } from "../config/firebase-config.js"
 import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js"
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js"
 import {
   collection,
   doc,
@@ -213,3 +214,10 @@ function escapeHtml(str) {
 }
 
 window.loadCategories = loadCategories
+
+// Show Admin link if logged in as admin
+onAuthStateChanged(auth, (user) => {
+  if (user && user.email === "admin@restaurant.com") {
+    document.getElementById("admin-link").style.display = "block";
+  }
+});
