@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Restoran Cashier</title>
+  <link rel="stylesheet" href="styles/globals.css">
+  <link rel="stylesheet" href="styles/menu.css">
+  <style>
+    .receipt {
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 20px;
+      margin-top: 20px;
+      max-width: 400px;
+      text-align: left;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .receipt h3 {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    .receipt-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+    .receipt-total {
+      border-top: 1px solid #ddd;
+      padding-top: 10px;
+      font-weight: bold;
+      text-align: right;
+      margin-top: 10px;
+    }
+    .print-btn {
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      margin-top: 15px;
+    }
+    .print-btn:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+  <header class="menu-header">
+    <div class="container" style="display: flex; justify-content: space-between; align-items: center;">
+      <h1 class="menu-title">Cashier</h1>
+      <a href="index.html" class="btn-secondary">← Back to Menu</a>
+    </div>
+  </header>
+
+  <main class="menu-container">
+    <div class="container" id="cashier-root">
+      <div class="loading">Preparing payment summary...</div>
+    </div>
+  </main>
+
+  <script type="module">
+    document.addEventListener("DOMContentLoaded", () => {
+      const root = document.getElementById("cashier-root");
+      const orderData = JSON.parse(sessionStorage.getItem("confirmedOrder") || "[]");
+
+      if (orderData.length === 0) {
+        root.innerHTML = `
+          <div class="empty-menu">
+            <h3>No confirmed orders found</h3>
+            <a href="index.html" class="btn-primary">Back to Menu</a>
+          </div>`;
+        return;
+      }
+
+      const total = orderData.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+      root.innerHTML = `
+        <h2 class="category-title">Customer Order Summary</h2>
+        <div class="menu-items">
+          ${orderData.map(item => `
+            <div class="payment-item">
+              <div class="item-info">
+                <span class="item-name">${item.name}</span>
+                <span class="item-quantity">x${item.quantity}</span>
+              </div>
+              <div class="item-price">Rp ${(item.price * item.quantity).toLocaleString('id-ID')}</div>
+            </div>
+          `).join("")}
+        </div>
+
+        <div class="total-price">
+          <strong>Total:</strong> Rp ${total.toLocaleString('id-ID')}
+        </div>
+
+        <div class="payment-methods" style="margin-top: 2rem;">
+          <h3>Select Payment Method</h3>
+          <select id="payment-method" class="form-input" style="max-width: 300px;">
+            <option value="cash">Cash</option>
+            <option value="qris">QRIS</option>
+            <option value="credit">Credit Card</option>
+          </select>
+        </div>
+
+        <div class="payment-actions" style="margin-top: 1.5rem;">
+          <button id="complete-payment" class="btn-primary">Complete Payment</button>
+        </div>
+
+        <div id="payment-status" class="item-description" style="margin-top: 1rem;"></div>
+        <div id="receipt-container" style="display: none;"></div>
+      `;
+
+      document.getElementById("complete-payment").addEventListener("click", () => {
+        const method = document.getElementById("payment-method").value;
+        sessionStorage.removeItem("confirmedOrder");
+        const now = new Date();
+
+        document.getElementById("payment-status").innerHTML = `
+          <p>Payment successful using <strong>${method.toUpperCase()}</strong>!</p>
+          <p>Thank you for your purchase.</p>
+        `;
+        document.getElementById("complete-payment").disabled = true;
+
+        // Generate receipt
+        const receiptHTML = `
+          <div class="receipt">
+            <h3>Restoran Receipt</h3>
+            <p>Date: ${now.toLocaleDateString()} ${now.toLocaleTimeString()}</p>
+            <div class="receipt-items">
+              ${orderData.map(item => `
+                <div class="receipt-item">
+                  <span>${item.name} x${item.quantity}</span>
+                  <span>Rp ${(item.price * item.quantity).toLocaleString('id-ID')}</span>
+                </div>
+              `).join("")}
+            </div>
+            <div class="receipt-total">Total: Rp ${total.toLocaleString('id-ID')}</div>
+            <div style="text-align:center;">
+              <button class="print-btn" onclick="window.print()">Print Receipt</button>
+            </div>
+          </div>
+        `;
+        const receiptContainer = document.getElementById("receipt-container");
+        receiptContainer.innerHTML = receiptHTML;
+        receiptContainer.style.display = "block";
+      });
+    });
+  </script>
+</body>
+</html>

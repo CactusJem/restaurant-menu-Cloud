@@ -103,11 +103,9 @@ function renderSummary(itemsWithDetails) {
   
     document.getElementById("pay-now").addEventListener("click", (e) => {
       e.preventDefault();
-      document.getElementById("payment-status").innerHTML = "Thank you! Your order is confirmed. Please complete payment at the counter.";
-      cart.clear();
-      e.target.disabled = true;
-      document.querySelectorAll('.quantity-btn, .remove-btn').forEach(btn => btn.disabled = true);
-    });
+      sessionStorage.setItem("confirmedOrder", JSON.stringify(itemsWithDetails));
+      window.location.href = "cashier.html";
+    });    
   
     document.querySelectorAll('.quantity-btn').forEach(btn => {
       btn.addEventListener('click', () => {
