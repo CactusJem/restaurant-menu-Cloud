@@ -1,5 +1,11 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js"
-import { getFirestore, doc, getDoc, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js"
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  setDoc,
+  serverTimestamp,
+} from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js"
 import { firebaseConfig } from "../config/firebase-config.js"
 
 const app = initializeApp(firebaseConfig)
@@ -31,6 +37,32 @@ function escapeHtml(text) {
 
 function formatPrice(n) {
   return n?.toLocaleString?.("id-ID") ?? n
+}
+
+function slugifyName(name) {
+  const base = String(name || "")
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9-]/g, "")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "")
+  return base || "order"
+}
+
+async function ensureUniqueOrderId(db, baseId) {
+  let candidate = baseId
+  let i = 0
+  // Try base, then base1, base2, ...
+  // Stop-gap upper bound to avoid infinite loops
+  while (i < 10000) {
+    const ref = doc(db, "orders", candidate)
+    const snap = await getDoc(ref)
+    if (!snap.exists()) return candidate
+    i += 1
+    candidate = `${baseId}${i}`
+  }
+  throw new Error("Too many duplicate order IDs")
 }
 
 // --- DATA FETCHING ---
@@ -73,7 +105,9 @@ function renderSummary(itemsWithDetails) {
   root.innerHTML = `
     <h2 class="category-title">Order Summary</h2>
     <div class="menu-items">
-      ${itemsWithDetails.map((item) => `
+      ${itemsWithDetails
+        .map(
+          (item) => `
         <div class="payment-item">
           <div class="item-info">
             <span class="item-name">${item.quantity}x ${escapeHtml(item.name)}</span>
@@ -87,7 +121,9 @@ function renderSummary(itemsWithDetails) {
             </div>
           </div>
         </div>
-      `).join("")}
+      `,
+        )
+        .join("")}
     </div>
     <div class="total-price">
       <strong>Total:</strong> Rp ${formatPrice(total)}
@@ -117,9 +153,11 @@ function renderSummary(itemsWithDetails) {
     }
 
     try {
-      await addDoc(collection(db, "orders"), orderData)
-      document.getElementById("payment-status").innerHTML =
-        "Order submitted! Please proceed to cashier."
+      const baseId = slugifyName(name)
+      const orderId = await ensureUniqueOrderId(db, baseId)
+      await setDoc(doc(db, "orders", orderId), orderData)
+
+      document.getElementById("payment-status").innerHTML = "Order submitted! Please proceed to cashier."
       cart.clear()
       e.target.disabled = true
     } catch (err) {
@@ -132,7 +170,7 @@ function renderSummary(itemsWithDetails) {
   document.querySelectorAll(".quantity-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
       const key = btn.dataset.key
-      const change = parseInt(btn.dataset.change, 10)
+      const change = Number.parseInt(btn.dataset.change, 10)
       cart.updateItemQuantity(key, change)
     })
   })
