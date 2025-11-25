@@ -30,5 +30,14 @@
   </main>
 
   <script type="module" src="js/frontend/cashier.js"></script>
+  <script>
+    const pass = prompt("Enter cashier password:");
+  
+    if (pass !== "123456") {
+      alert("Access denied!");
+      window.location.href = "index.html";
+    }
+  </script>
+  
 </body>
 </html>

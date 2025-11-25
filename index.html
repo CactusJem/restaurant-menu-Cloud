@@ -6,12 +6,15 @@
   <title>Restoran - Fine Dining Experience</title>
   <link rel="stylesheet" href="styles/globals.css">
   <link rel="stylesheet" href="styles/menu.css">
+  <link rel="stylesheet" href="styles/staff.css">
 </head>
 <body>
   <header class="menu-header">
     <div class="container header-top">
       <h1 class="menu-title">Restoran</h1>
-      <div class="header-buttons">
+
+      <!-- HEADER BUTTONS — hidden by default -->
+      <div class="header-buttons" id="header-buttons" style="display: none;">
         <a href="admin.html" class="btn-header">Admin Panel</a>
         <a href="cashier.html" class="btn-header">Cashier Panel</a>
       </div>
@@ -31,6 +34,11 @@
     View Cart (<span id="cart-count">0</span>)
   </a>
 
+  <!-- Main menu script -->
   <script type="module" src="js/frontend/public-menu.js"></script>
+
+  <!-- NEW: Controls visibility of Admin & Cashier buttons -->
+  <script type="module" src="js/frontend/auth-visibility.js"></script>
+
 </body>
 </html>

@@ -1,0 +1,17 @@
+/* Hidden Admin / Cashier Buttons */
+.btn-header {
+    font-size: 12px;
+    padding: 4px 8px;
+    opacity: 0.1;
+    background-color: #e0e0e0;
+    color: #333;
+    border-radius: 5px;
+    transition: opacity 0.25s ease;
+    text-decoration: none;
+    margin-left: 5px;
+  }
+  
+  .btn-header:hover {
+    opacity: 0.9;
+  }
+  

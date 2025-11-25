@@ -70,5 +70,14 @@
 
   <!-- JS -->
   <script type="module" src="js/backend/admin.js"></script>
+  <script>
+    const pass = prompt("Enter admin password:");
+  
+    if (pass !== "123456") {
+      alert("Access denied!");
+      window.location.href = "index.html";
+    }
+  </script>
+  
 </body>
 </html>

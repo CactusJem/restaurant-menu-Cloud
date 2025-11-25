@@ -9,7 +9,7 @@ export const firebaseConfig = {
   apiKey: "AIzaSyBCRCzW8s5iMbSnk5RIV8wbDCIN9V_vT2Y",
   authDomain: "restaurantmenu-7d861.firebaseapp.com",
   projectId: "restaurantmenu-7d861",
-  storageBucket: "restaurantmenu-7d861.appspot.com",
+  storageBucket: "restaurantmenu-7d861.appspot.com",  
   messagingSenderId: "364365075232",
   appId: "1:364365075232:web:5145727a7cd42aef567d45",
   measurementId: "G-N5XR8KQPJR",
