@@ -7,17 +7,17 @@ const cart = {
   getItems: () => JSON.parse(sessionStorage.getItem(cart.key)) || {},
   saveItems: (items) => sessionStorage.setItem(cart.key, JSON.stringify(items)),
   addItem: (categoryId, itemID) => {
-    const items = cart.getItems();
-    const itemKey = `${categoryId}_${itemID}`; // Create a unique key for each item type
+    const items = cart.getItems()
+    const itemKey = `${categoryId}_${itemID}` // Create a unique key for each item type
 
     if (items[itemKey]) {
-      items[itemKey].quantity += 1; // If item exists, increment quantity
+      items[itemKey].quantity += 1 // If item exists, increment quantity
     } else {
-      items[itemKey] = { categoryId, itemID, quantity: 1 }; // Otherwise, add it
+      items[itemKey] = { categoryId, itemID, quantity: 1, discount: 0, notes: "" }
     }
-    
-    cart.saveItems(items);
-    updateCartButton();
+
+    cart.saveItems(items)
+    updateCartButton()
   },
 }
 
@@ -26,12 +26,12 @@ function updateCartButton() {
   const countEl = document.getElementById("cart-count")
   if (!btn || !countEl) return
 
-  const items = cart.getItems();
+  const items = cart.getItems()
   // Count total number of items, not just unique items
-  const totalCount = Object.values(items).reduce((sum, item) => sum + item.quantity, 0);
+  const totalCount = Object.values(items).reduce((sum, item) => sum + item.quantity, 0)
 
   if (totalCount > 0) {
-    countEl.textContent = totalCount;
+    countEl.textContent = totalCount
     btn.style.display = "flex"
   } else {
     btn.style.display = "none"
@@ -68,10 +68,11 @@ function renderCategoryCard(catId, catData) {
       ${
         items.length === 0
           ? `<div class="empty-menu"><em>No items in this category</em></div>`
-          : items.map((it) => {
-              const isOutOfStock = it.stockStatus?.toLowerCase() === 'out of stock';
-              const stockStatusClass = isOutOfStock ? 'out-of-stock' : 'in-stock';
-              return `
+          : items
+              .map((it) => {
+                const isOutOfStock = it.stockStatus?.toLowerCase() === "out of stock"
+                const stockStatusClass = isOutOfStock ? "out-of-stock" : "in-stock"
+                return `
               <div class="menu-item">
                 <div class="item-info">
                   <span class="item-name">${escapeHtml(it.name)}</span>
@@ -83,11 +84,13 @@ function renderCategoryCard(catId, catData) {
                     class="pay-button" 
                     data-category-id="${catId}" 
                     data-item-id="${it.itemID}"
-                    ${isOutOfStock ? 'disabled' : ''}
+                    ${isOutOfStock ? "disabled" : ""}
                   >+</button>
                 </div>
               </div>
-            `}).join("")
+            `
+              })
+              .join("")
       }
     </div>
   `
@@ -96,15 +99,15 @@ function renderCategoryCard(catId, catData) {
   const title = card.querySelector(".category-title")
   title.addEventListener("click", () => {
     const isCurrentlyCollapsed = card.classList.contains("collapsed")
-    document.querySelectorAll(".category-card").forEach(c => {
-        c.classList.add("collapsed");
-        c.classList.remove("active");
-    });
+    document.querySelectorAll(".category-card").forEach((c) => {
+      c.classList.add("collapsed")
+      c.classList.remove("active")
+    })
     if (isCurrentlyCollapsed) {
-      card.classList.remove("collapsed");
-      card.classList.add("active");
+      card.classList.remove("collapsed")
+      card.classList.add("active")
     }
-  });
+  })
 
   card.querySelectorAll(".pay-button").forEach((btn) => {
     btn.addEventListener("click", (event) => {
@@ -154,4 +157,3 @@ if (document.readyState === "loading") {
 } else {
   init()
 }
-

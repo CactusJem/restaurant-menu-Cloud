@@ -3,42 +3,86 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Restoran - Fine Dining Experience</title>
+  <title>Restoran - Staff & Admin Login</title>
   <link rel="stylesheet" href="styles/globals.css">
-  <link rel="stylesheet" href="styles/menu.css">
-  <link rel="stylesheet" href="styles/staff.css">
+  <link rel="stylesheet" href="styles/login.css">
 </head>
-<body>
-  <header class="menu-header">
-    <div class="container header-top">
-      <h1 class="menu-title">Restoran</h1>
+<body class="login-body">
+  <div class="login-container">
+    <!-- Logo Section -->
+    <div class="login-header">
+      <h1 class="login-logo">Restoran</h1>
+      <p class="login-subtitle">Restaurant Management System</p>
+    </div>
 
-      <!-- HEADER BUTTONS — hidden by default -->
-      <div class="header-buttons" id="header-buttons" style="display: none;">
-        <a href="admin.html" class="btn-header">Admin Panel</a>
-        <a href="cashier.html" class="btn-header">Cashier Panel</a>
+    <!-- Improved role selector with better UX and clear descriptions -->
+    <div class="role-selector" id="roleSelector">
+      <button type="button" class="role-btn" data-role="staff">
+        <span class="role-icon">👨‍🍳</span>
+        <span class="role-title">Staff Login</span>
+        <span class="role-desc">Kitchen & Service</span>
+      </button>
+      <button type="button" class="role-btn" data-role="admin">
+        <span class="role-icon">⚙️</span>
+        <span class="role-title">Admin Login</span>
+        <span class="role-desc">System Admin</span>
+      </button>
+      <button type="button" class="role-btn" data-role="cashier">
+        <span class="role-icon">💳</span>
+        <span class="role-title">Cashier Login</span>
+        <span class="role-desc">Payments</span>
+      </button>
+    </div>
+
+    <!-- Improved login form with better accessibility and error handling -->
+    <div class="login-form-container" id="loginFormContainer" style="display: none;">
+      <div class="login-form-header">
+        <button type="button" class="back-btn" id="backBtn">← Back</button>
+        <h2 class="form-title" id="formTitle">Staff Login</h2>
+      </div>
+
+      <form id="loginForm" novalidate>
+        <div class="form-group">
+          <label class="form-label" for="email">Email Address</label>
+          <input 
+            type="email" 
+            id="email" 
+            class="form-input" 
+            placeholder="your@email.com" 
+            required
+            autocomplete="email"
+          >
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="password">Password</label>
+          <input 
+            type="password" 
+            id="password" 
+            class="form-input" 
+            placeholder="Enter your password" 
+            required
+            autocomplete="current-password"
+          >
+        </div>
+
+        <div id="errorMessage" class="error-message" style="display: none;" role="alert"></div>
+
+        <button type="submit" class="btn-primary btn-submit" id="submitBtn">Login</button>
+      </form>
+
+      <div class="form-footer">
+        <p class="footer-text">Contact admin for account issues</p>
       </div>
     </div>
-    <p class="menu-subtitle">Curated culinary experiences crafted with passion</p>
-  </header>
-  
-  <main class="menu-container">
-    <div class="container">
-      <div id="menu" class="menu-grid">
-        <div class="loading">Loading our carefully curated menu...</div>
-      </div>
-    </div>
-  </main>
+  </div>
 
-  <a href="payment.html" id="cart-button" class="cart-button" style="display: none;">
-    View Cart (<span id="cart-count">0</span>)
-  </a>
+  <!-- Loading overlay -->
+  <div class="loading-overlay" id="loadingOverlay" style="display: none;" aria-label="Loading">
+    <div class="spinner"></div>
+    <p>Authenticating...</p>
+  </div>
 
-  <!-- Main menu script -->
-  <script type="module" src="js/frontend/public-menu.js"></script>
-
-  <!-- NEW: Controls visibility of Admin & Cashier buttons -->
-  <script type="module" src="js/frontend/auth-visibility.js"></script>
-
+  <script type="module" src="js/frontend/login.js"></script>
 </body>
 </html>

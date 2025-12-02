@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Restoran - Fine Dining Experience</title>
+  <link rel="stylesheet" href="styles/globals.css">
+  <link rel="stylesheet" href="styles/menu.css">
+  <link rel="stylesheet" href="styles/staff.css">
+</head>
+<body>
+  <!-- Added staff identification modal that appears before menu -->
+  <div id="staff-modal" class="staff-modal">
+    <div class="staff-modal-content">
+      <h2>Staff Identification</h2>
+      <p>Enter your details to start taking orders</p>
+      <form id="staff-form">
+        <div class="form-group">
+          <label for="staff-name">Your Name:</label>
+          <input 
+            type="text" 
+            id="staff-name" 
+            name="staff-name" 
+            placeholder="Enter your name" 
+            required
+          >
+        </div>
+        <div class="form-group">
+          <label for="staff-role">Role:</label>
+          <select id="staff-role" name="staff-role" required>
+            <option value="">-- Select Role --</option>
+            <option value="waiter">Waiter</option>
+            <option value="cashier">Cashier</option>
+          </select>
+        </div>
+        <button type="submit" class="pay-button">Start Taking Orders</button>
+      </form>
+    </div>
+  </div>
+
+  <header class="menu-header">
+    <div class="container header-top">
+      <h1 class="menu-title">Restoran</h1>
+
+      <!-- HEADER BUTTONS — hidden by default -->
+      <div class="header-buttons" id="header-buttons" style="display: none;">
+        <a href="admin.html" class="btn-header">Admin Panel</a>
+        <a href="staff.html" class="btn-header">Staff Login</a>
+        <a href="cashier.html" class="btn-header">Cashier Panel</a>
+      </div>
+
+      <!-- Staff info display in top right -->
+      <div class="staff-info" id="staff-info">
+        <span id="current-staff-name"></span> (<span id="current-staff-role"></span>)
+        <button id="change-staff-btn" class="btn-header">Change Staff</button>
+      </div>
+    </div>
+    <p class="menu-subtitle">Curated culinary experiences crafted with passion</p>
+  </header>
+  
+  <main class="menu-container">
+    <div class="container">
+      <div id="menu" class="menu-grid">
+        <div class="loading">Loading our carefully curated menu...</div>
+      </div>
+    </div>
+  </main>
+
+  <a href="payment.html" id="cart-button" class="cart-button" style="display: none;">
+    View Cart (<span id="cart-count">0</span>)
+  </a>
+
+  <!-- Main menu script -->
+  <script type="module" src="js/frontend/public-menu.js"></script>
+
+  <!-- NEW: Controls visibility of Admin & Cashier buttons -->
+  <script type="module" src="js/frontend/auth-visibility.js"></script>
+
+  <!-- New staff tracking module -->
+  <script type="module" src="js/frontend/staff-tracking.js"></script>
+
+</body>
+</html>
