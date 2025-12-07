@@ -12,6 +12,23 @@ import { staffStorage } from "./staff-tracking.js"
 const app = initializeApp(firebaseConfig)
 const db = getFirestore(app)
 
+// --- HELPER: Generate unique order ID ---
+async function generateOrderId(db) {
+  const now = new Date()
+  const day = String(now.getDate()).padStart(2, "0")
+  const month = String(now.getMonth() + 1).padStart(2, "0")
+  const year = String(now.getFullYear())
+  const dateKey = `${day}${month}${year}`
+
+  // Get today's order count from localStorage
+  const countKey = `order-count-${dateKey}`
+  const orderCount = Number.parseInt(localStorage.getItem(countKey) || "0") + 1
+  localStorage.setItem(countKey, orderCount)
+
+  const orderNumber = String(orderCount).padStart(2, "0")
+  return `${dateKey}${orderNumber}`
+}
+
 // --- CART MANAGEMENT ---
 const cart = {
   key: "resto-cart",
@@ -58,30 +75,6 @@ function formatPrice(n) {
   return n?.toLocaleString?.("id-ID") ?? n
 }
 
-function slugifyName(name) {
-  const base = String(name || "")
-    .trim()
-    .toLowerCase()
-    .replace(/\s+/g, "-")
-    .replace(/[^a-z0-9-]/g, "")
-    .replace(/-+/g, "-")
-    .replace(/^-|-$/g, "")
-  return base || "order"
-}
-
-async function ensureUniqueOrderId(db, baseId) {
-  let candidate = baseId
-  let i = 0
-  while (i < 10000) {
-    const ref = doc(db, "orders", candidate)
-    const snap = await getDoc(ref)
-    if (!snap.exists()) return candidate
-    i += 1
-    candidate = `${baseId}${i}`
-  }
-  throw new Error("Too many duplicate order IDs")
-}
-
 // --- DATA FETCHING ---
 async function fetchItemDetails(categoryId, itemID) {
   try {
@@ -96,14 +89,6 @@ async function fetchItemDetails(categoryId, itemID) {
     console.error("Error fetching item:", error)
     return null
   }
-}
-
-function calculateDiscount(itemPrice, quantity, discount, discountType) {
-  const totalPrice = itemPrice * quantity
-  if (discountType === "percentage") {
-    return (totalPrice * discount) / 100
-  }
-  return Math.min(discount, totalPrice)
 }
 
 // --- RENDERING LOGIC ---
@@ -354,19 +339,3 @@ async function loadAndRenderCart() {
 
 // --- INITIALIZATION ---
 document.addEventListener("DOMContentLoaded", loadAndRenderCart)
-
-async function generateOrderId(db) {
-  const now = new Date()
-  const day = String(now.getDate()).padStart(2, "0")
-  const month = String(now.getMonth() + 1).padStart(2, "0")
-  const year = String(now.getFullYear())
-  const dateKey = `${day}${month}${year}`
-
-  // Get today's order count from localStorage
-  const countKey = `order-count-${dateKey}`
-  const orderCount = Number.parseInt(localStorage.getItem(countKey) || "0") + 1
-  localStorage.setItem(countKey, orderCount)
-
-  const orderNumber = String(orderCount).padStart(2, "0")
-  return `${dateKey}${orderNumber}`
-}

@@ -1,4 +1,4 @@
-import { db } from "../config/firebase-config.js"
+import { auth, db } from "../config/firebase-config.js"
 import {
   collection,
   query,
@@ -8,9 +8,13 @@ import {
   doc,
   updateDoc,
   deleteDoc,
+  getDocs,
 } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js"
+import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js"
 
 const ordersList = document.getElementById("orders-list")
+const loadingState = document.getElementById("loading-state")
+const ordersContent = document.getElementById("orders-content")
 
 let currentDiscount = { type: "percentage", value: 0 }
 let currentCustomerID = null
@@ -279,8 +283,6 @@ function listenOrders() {
       })
       ordersList.innerHTML = html.join("")
       updateOrderTotal()
-
-      attachButtonListeners()
     },
     (err) => {
       console.error("Orders snapshot error:", err)
@@ -289,4 +291,58 @@ function listenOrders() {
   )
 }
 
-listenOrders()
+// ==========================
+//  AUTO AUTH CHECK FOR CASHIER
+// ==========================
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    console.warn("No user detected → redirect to login")
+    loadingState.innerHTML = '<p style="color: var(--color-danger);">Access denied. Redirecting to login...</p>'
+    setTimeout(() => {
+      window.location.href = "index.html"
+    }, 1500)
+    return
+  }
+
+  // READ ROLE FROM FIRESTORE
+  const staffRef = collection(db, "users")
+  const snapshot = await getDocs(staffRef)
+
+  let userRole = null
+  snapshot.forEach((doc) => {
+    const data = doc.data()
+    if (data.email === user.email) {
+      userRole = data.role
+    }
+  })
+
+  // NOT CASHIER → KICK OUT
+  if (userRole !== "cashier") {
+    loadingState.innerHTML = '<p style="color: var(--color-danger);">Access denied. You are not a cashier.</p>'
+    setTimeout(() => {
+      signOut(auth)
+      window.location.href = "index.html"
+    }, 1500)
+    return
+  }
+
+  // User is authenticated cashier → show orders
+  const userInfo = document.getElementById("userInfo")
+  if (userInfo) {
+    userInfo.textContent = `Logged in as: ${user.email}`
+  }
+
+  loadingState.style.display = "none"
+  ordersContent.style.display = "block"
+
+  attachButtonListeners()
+  listenOrders()
+})
+
+// ==========================
+//  LOGOUT
+// ==========================
+document.getElementById("logoutBtn")?.addEventListener("click", async () => {
+  await signOut(auth)
+  window.location.href = "index.html"
+})

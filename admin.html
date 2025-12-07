@@ -10,74 +10,148 @@
 <body class="admin-container">
   <header class="admin-header">
     <div class="container" style="display: flex; justify-content: space-between; align-items: center;">
-      <h1 class="admin-title">Restoran Admin</h1> 
-      <a href="index.html" class="btn-secondary">← Back to Menu</a>
+      <h1 class="admin-title">Restoran Admin</h1>
+      <div style="display: flex; gap: 1rem; align-items: center;">
+        <span id="userInfo" class="admin-user-info"></span>
+        <button id="logoutBtn" class="btn-secondary">Logout</button>
+        <a href="menu.html" class="btn-secondary">← Back to Menu</a>
+      </div>
     </div>
   </header>  
 
   <main>
-    <!-- ========== LOGIN SECTION ========== -->
-    <section id="login-box" class="login-section">
-      <div class="login-card">
-        <h2 class="login-title">Administrator Access</h2>
-        <form id="login-form" onsubmit="event.preventDefault(); login();">
-          <div class="form-group">
-            <label class="form-label" for="email">Email Address</label>
-            <input type="email" id="email" class="form-input" placeholder="admin@restoran.com" required>
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="password">Password</label>
-            <input type="password" id="password" class="form-input" placeholder="Enter your password" required>
-          </div>
-          <button type="submit" class="btn-primary">Access Dashboard</button>
-        </form>
-      </div>
+    <!-- ========== LOADING STATE ========== -->
+    <section id="loading-state" class="loading-state" style="display: flex; align-items: center; justify-content: center; min-height: 60vh;">
+      <div class="loading">Verifying admin access...</div>
     </section>
 
     <!-- ========== DASHBOARD SECTION ========== -->
     <section id="dashboard" class="dashboard-content" style="display: none;">
       <div class="container">
         
-        <!-- Category Creation -->
+        <!-- Add New Category Section -->
         <div class="section-card">
           <h2 class="section-title">Create New Category</h2>
-          <div class="create-category-form">
+          <form id="add-category-form" class="add-dish-form">
             <div class="form-group">
-              <label class="form-label" for="new-cat-name">Category Name</label>
-              <input id="new-cat-name" class="form-input" placeholder="e.g., Appetizers, Main Courses">
+              <label class="form-label" for="category-name">Category Name</label>
+              <input id="category-name" type="text" class="form-input" placeholder="e.g., Beverages, Desserts, Main Courses" required>
             </div>
             <div class="form-group">
-              <label class="form-label" for="new-cat-prefix">Category Prefix</label>
-              <input id="new-cat-prefix" class="form-input" placeholder="e.g., ap, mc, de">
+              <label class="form-label" for="category-id">Category ID</label>
+              <input id="category-id" type="text" class="form-input" placeholder="e.g., beverages (lowercase, no spaces)" required>
+              <small style="color: var(--color-text-muted);">This will be the document ID in Firestore</small>
             </div>
-            <button class="btn-primary" onclick="createCategory()">Create Category</button>
-          </div>
+            <div class="form-group">
+              <label class="form-label" for="category-prefix">Item ID Prefix</label>
+              <input id="category-prefix" type="text" class="form-input" placeholder="e.g., be (for Beverages: be_001, be_002...)" maxlength="3" required>
+              <small style="color: var(--color-text-muted);">2-3 character prefix for auto-generating item IDs</small>
+            </div>
+            <button type="submit" class="btn-primary">Create Category</button>
+          </form>
         </div>
 
-        <!-- Category List -->
+        <!-- Add New Dish Section -->
         <div class="section-card">
-          <h2 class="section-title">Menu Categories</h2>
-          <div id="categories-list">
-            <div class="loading">Loading categories...</div>
-          </div>
+          <h2 class="section-title">Add New Dish</h2>
+          <form id="add-dish-form" class="add-dish-form">
+            <div class="form-group">
+              <label class="form-label" for="dish-category">Category</label>
+              <select id="dish-category" class="form-input" required>
+                <option value="">Select a category...</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="dish-name">Dish Name</label>
+              <input id="dish-name" type="text" class="form-input" placeholder="e.g., Beef Rendang" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="dish-price">Price (IDR)</label>
+              <input id="dish-price" type="number" class="form-input" placeholder="e.g., 25000" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="dish-description">Description</label>
+              <textarea id="dish-description" class="form-input" placeholder="Describe the dish..." rows="3"></textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="dish-stock">Stock Status</label>
+              <select id="dish-stock" class="form-input" required>
+                <option value="In Stock">In Stock</option>
+                <option value="Out of Stock">Out of Stock</option>
+              </select>
+            </div>
+            <button type="submit" class="btn-primary">Add Dish</button>
+          </form>
         </div>
 
-      
+        <!-- Menu Items by Category -->
+        <div class="section-card">
+          <h2 class="section-title">Menu Items</h2>
+          <div id="categories-container">
+            <div class="loading">Loading menu items...</div>
+          </div>
+        </div>
 
       </div>
     </section>
   </main>
 
+  <!-- Edit Dish Modal -->
+  <div id="edit-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Edit Dish</h3>
+        <button type="button" class="modal-close" onclick="closeEditModal()">&times;</button>
+      </div>
+      <form id="edit-dish-form">
+        <div class="form-group">
+          <label class="form-label" for="edit-dish-name">Dish Name</label>
+          <input id="edit-dish-name" type="text" class="form-input" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="edit-dish-price">Price (IDR)</label>
+          <input id="edit-dish-price" type="number" class="form-input" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="edit-dish-description">Description</label>
+          <textarea id="edit-dish-description" class="form-input" rows="3"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="edit-dish-stock">Stock Status</label>
+          <select id="edit-dish-stock" class="form-input" required>
+            <option value="In Stock">In Stock</option>
+            <option value="Out of Stock">Out of Stock</option>
+          </select>
+        </div>
+        <div style="display: flex; gap: 1rem;">
+          <button type="submit" class="btn-primary">Save Changes</button>
+          <button type="button" class="btn-secondary" onclick="closeEditModal()">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Delete Category Modal -->
+  <!-- Added delete category confirmation modal -->
+  <div id="delete-category-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Delete Category</h3>
+        <button type="button" class="modal-close" onclick="closeDeleteCategoryModal()">&times;</button>
+      </div>
+      <div style="margin-bottom: 1.5rem;">
+        <p>Are you sure you want to delete this category?</p>
+        <p id="delete-category-warning" style="color: var(--color-danger); font-weight: bold;"></p>
+      </div>
+      <div style="display: flex; gap: 1rem;">
+        <button type="button" class="btn-danger" onclick="confirmDeleteCategory()">Yes, Delete</button>
+        <button type="button" class="btn-secondary" onclick="closeDeleteCategoryModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
   <!-- JS -->
   <script type="module" src="js/backend/admin.js"></script>
-  <script>
-    const pass = prompt("Enter admin password:");
-  
-    if (pass !== "123456") {
-      alert("Access denied!");
-      window.location.href = "index.html";
-    }
-  </script>
   
 </body>
 </html>
