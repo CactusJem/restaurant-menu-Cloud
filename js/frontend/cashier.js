@@ -317,7 +317,7 @@ onAuthStateChanged(auth, async (user) => {
   })
 
   // NOT CASHIER → KICK OUT
-  if (userRole !== "cashier") {
+  if (userRole == "waiter" ) {
     loadingState.innerHTML = '<p style="color: var(--color-danger);">Access denied. You are not a cashier.</p>'
     setTimeout(() => {
       signOut(auth)
