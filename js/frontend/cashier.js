@@ -268,7 +268,13 @@ function attachButtonListeners() {
 
 function listenOrders() {
   renderLoading()
-  const q = query(collection(db, "orders"), where("status", "==", "pending"), orderBy("timestamp", "asc"))
+
+  const q = query(
+    collection(db, "orders"),
+    where("status", "==", "pending")
+    // No orderBy here; Firestore will return documents in default order
+  )
+
   return onSnapshot(
     q,
     (snapshot) => {
@@ -290,6 +296,7 @@ function listenOrders() {
     },
   )
 }
+
 
 // ==========================
 //  AUTO AUTH CHECK FOR CASHIER
@@ -314,11 +321,15 @@ onAuthStateChanged(auth, async (user) => {
     if (data.email === user.email) {
       userRole = data.role
     }
-  })
+  })  
 
-  // NOT CASHIER → KICK OUT
-  if (userRole == "waiter" ) {
-    loadingState.innerHTML = '<p style="color: var(--color-danger);">Access denied. You are not a cashier.</p>'
+  const normalizedRole = (userRole || "").toLowerCase()
+  const allowedRoles = new Set(["cashier", "admin"])
+
+  // Allow cashier and admin; block everything else (including missing role)
+  if (!allowedRoles.has(normalizedRole)) {
+    loadingState.innerHTML =
+      '<p style="color: var(--color-danger);">Access denied. Cashier or admin only.</p>'
     setTimeout(() => {
       signOut(auth)
       window.location.href = "index.html"

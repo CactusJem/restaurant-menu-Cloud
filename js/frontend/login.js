@@ -43,7 +43,8 @@ document.querySelectorAll(".role-btn").forEach((btn) => {
 document.getElementById("backBtn")?.addEventListener("click", () => {
   document.querySelectorAll(".role-btn").forEach((b) => b.classList.remove("active"))
   selectedRole = null
-  document.getElementById("roleSelector").style.display = "block"
+  // Restore grid layout when returning to role selection
+  document.getElementById("roleSelector").style.display = "grid"
   document.getElementById("loginFormContainer").style.display = "none"
   document.getElementById("loginForm").reset()
   document.getElementById("errorMessage").textContent = ""
